@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordScramble - Find Hidden Words</title>
+    <title>🔎 WordFind</title>
     <style>
         :root {
             --bg-color: #131313;
@@ -19,669 +18,744 @@
             --success-color: #4CAF50;
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        line-height: 1.6;
-        min-height: 100vh;
-        padding: 20px;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
-    }
-
-    header {
-        text-align: center;
-        margin-bottom: 40px;
-        padding: 20px 0;
-    }
-
-    .logo {
-        font-size: 2.5rem;
-        font-weight: bold;
-        background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 10px;
-    }
-
-    .subtitle {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-        font-weight: 300;
-    }
-
-    .input-section {
-        background: var(--card-bg);
-        padding: 30px;
-        border-radius: 16px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px var(--shadow-color);
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
-    }
-
-    .input-section:hover {
-        box-shadow: 0 15px 40px var(--shadow-color);
-        border-color: var(--primary-accent);
-    }
-
-    .input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    label {
-        font-weight: 600;
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-    }
-
-    input[type="text"] {
-        padding: 16px 20px;
-        font-size: 1.2rem;
-        border: 2px solid var(--border-color);
-        border-radius: 12px;
-        background: var(--bg-color);
-        color: var(--text-color);
-        transition: all 0.3s ease;
-        outline: none;
-        font-family: inherit;
-    }
-
-    input[type="text"]:focus {
-        border-color: var(--primary-accent);
-        box-shadow: 0 0 0 3px rgba(1, 199, 252, 0.2);
-        transform: translateY(-2px);
-    }
-
-    input[type="text"]:hover {
-        border-color: var(--secondary-accent);
-    }
-
-    .loading {
-        display: none;
-        text-align: center;
-        padding: 20px;
-        color: var(--primary-accent);
-        font-size: 1.1rem;
-    }
-
-    .loading.show {
-        display: block;
-    }
-
-    .spinner {
-        width: 30px;
-        height: 30px;
-        border: 3px solid var(--border-color);
-        border-top: 3px solid var(--primary-accent);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 10px;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .error {
-        background: rgba(255, 68, 68, 0.1);
-        color: var(--error-color);
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 15px;
-        border: 1px solid var(--error-color);
-        display: none;
-    }
-
-    .error.show {
-        display: block;
-    }
-
-    .results {
-        display: none;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.5s ease;
-    }
-
-    .results.show {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .summary {
-        background: var(--card-bg);
-        padding: 25px;
-        border-radius: 16px;
-        margin-bottom: 25px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 8px 25px var(--shadow-color);
-    }
-
-    .summary h2 {
-        color: var(--primary-accent);
-        font-size: 1.8rem;
-        margin-bottom: 15px;
-        text-align: center;
-    }
-
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-        margin-top: 20px;
-    }
-
-    .stat-item {
-        background: var(--bg-color);
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-
-    .stat-item:hover {
-        border-color: var(--secondary-accent);
-        transform: translateY(-2px);
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--primary-accent);
-    }
-
-    .stat-label {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        margin-top: 5px;
-    }
-
-    .word-groups {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-    }
-
-    .word-group {
-        background: var(--card-bg);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 6px 20px var(--shadow-color);
-        transition: all 0.3s ease;
-    }
-
-    .word-group:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px var(--shadow-color);
-    }
-
-    .word-group h3 {
-        color: var(--secondary-accent);
-        margin-bottom: 15px;
-        font-size: 1.3rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .word-count {
-        background: var(--primary-accent);
-        color: var(--bg-color);
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-
-    .words-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .word-item {
-        background: var(--bg-color);
-        padding: 8px 12px;
-        border-radius: 20px;
-        border: 1px solid var(--border-color);
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .word-item:hover {
-        background: var(--primary-accent);
-        color: var(--bg-color);
-        transform: scale(1.05);
-    }
-
-    .no-results {
-        text-align: center;
-        padding: 40px;
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-    }
-
-    .footer {
-        text-align: center;
-        margin-top: 40px;
-        padding: 20px;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
         body {
-            padding: 15px;
-        }
-
-        .logo {
-            font-size: 2rem;
-        }
-
-        .input-section {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
             padding: 20px;
         }
 
-        input[type="text"] {
-            padding: 14px 16px;
-            font-size: 1.1rem;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .summary {
-            padding: 20px;
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
         }
 
-        .summary h2 {
-            font-size: 1.5rem;
-        }
-
-        .stats {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .word-groups {
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        .word-group {
-            padding: 15px;
-        }
-
-        .word-group h3 {
-            font-size: 1.2rem;
-        }
-    }
-
-    @media (max-width: 480px) {
         .logo {
-            font-size: 1.8rem;
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
         }
 
         .subtitle {
-            font-size: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
         }
 
         .input-section {
-            padding: 15px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .input-section:hover {
+            box-shadow: 0 15px 40px var(--shadow-color);
+            border-color: var(--primary-accent);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
         }
 
         input[type="text"] {
-            padding: 12px 14px;
-            font-size: 1rem;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            outline: none;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(1, 199, 252, 0.2);
+            transform: translateY(-2px);
+        }
+
+        input[type="text"]:hover {
+            border-color: var(--secondary-accent);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-accent);
+            font-size: 1.1rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--error-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid var(--error-color);
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .results {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .results.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .summary {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .summary h2 {
+            color: var(--primary-accent);
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
         .stats {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            border-color: var(--secondary-accent);
+            transform: translateY(-2px);
         }
 
         .stat-number {
-            font-size: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-accent);
         }
-    }
 
-    /* Touch-friendly targets */
-    @media (pointer: coarse) {
-        input[type="text"] {
-            min-height: 48px;
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .word-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .word-group {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 20px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .word-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px var(--shadow-color);
+        }
+
+        .word-group h3 {
+            color: var(--secondary-accent);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .word-count {
+            background: var(--primary-accent);
+            color: var(--bg-color);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .words-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .word-item {
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 16px;
+            background: var(--bg-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-    }
-</style>
 
+        .word-item:hover {
+            background: var(--primary-accent);
+            color: var(--bg-color);
+            transform: scale(1.05);
+        }
 
+        .word-item:active {
+            transform: scale(0.95);
+        }
+
+        .word-item.copied {
+            background: var(--success-color);
+            color: var(--bg-color);
+            animation: copyPulse 0.6s ease-out;
+        }
+
+        @keyframes copyPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .input-section {
+                padding: 20px;
+            }
+
+            input[type="text"] {
+                padding: 14px 16px;
+                font-size: 1.1rem;
+            }
+
+            .summary {
+                padding: 20px;
+            }
+
+            .summary h2 {
+                font-size: 1.5rem;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 10px;
+            }
+
+            .word-groups {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .word-group {
+                padding: 15px;
+            }
+
+            .word-group h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .input-section {
+                padding: 15px;
+            }
+
+            input[type="text"] {
+                padding: 12px 14px;
+                font-size: 1rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Touch-friendly targets */
+        @media (pointer: coarse) {
+            input[type="text"] {
+                min-height: 48px;
+            }
+
+            .word-item {
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 12px 16px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1 class="logo">WordScramble</h1>
+            <h1 class="logo">WordFind</h1>
             <p class="subtitle">Discover all the hidden words within any word</p>
         </header>
 
+        <main>
+            <section class="input-section">
+                <div class="input-group">
+                    <label for="wordInput">Enter a word to scramble:</label>
+                    <input type="text" id="wordInput" placeholder="e.g., hello" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="error" id="errorMsg"></div>
+                <div class="loading" id="loadingMsg">
+                    <div class="spinner"></div>
+                    <p>Finding hidden words...</p>
+                </div>
+            </section>
 
-    <main>
-        <section class="input-section">
-            <div class="input-group">
-                <label for="wordInput">Enter a word to scramble:</label>
-                <input type="text" id="wordInput" placeholder="e.g., hello" autocomplete="off" spellcheck="false">
+            <section class="results" id="results">
+                <div class="summary" id="summary">
+                    <h2 id="summaryTitle"></h2>
+                    <div class="stats" id="stats"></div>
+                </div>
+                <div class="word-groups" id="wordGroups"></div>
+            </section>
+
+            <div class="no-results" id="noResults" style="display: none;">
+                <p>No words found. Try a different word with more letters!</p>
             </div>
-            <div class="error" id="errorMsg"></div>
-            <div class="loading" id="loadingMsg">
-                <div class="spinner"></div>
-                <p>Finding hidden words...</p>
-            </div>
-        </section>
+        </main>
 
-        <section class="results" id="results">
-            <div class="summary" id="summary">
-                <h2 id="summaryTitle"></h2>
-                <div class="stats" id="stats"></div>
-            </div>
-            <div class="word-groups" id="wordGroups"></div>
-        </section>
+        <footer class="footer">
+            <p>Built with HTML, CSS, and JavaScript • Find words hidden in plain sight</p>
+        </footer>
+    </div>
 
-        <div class="no-results" id="noResults" style="display: none;">
-            <p>No words found. Try a different word with more letters!</p>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <p>Built with HTML, CSS, and JavaScript • Find words hidden in plain sight</p>
-    </footer>
-</div>
-
-<script>
-    class WordScramble {
-        constructor() {
-            this.wordList = new Set();
-            this.isLoading = false;
-            this.initializeElements();
-            this.bindEvents();
-            this.loadWordList();
-        }
-
-        initializeElements() {
-            this.wordInput = document.getElementById('wordInput');
-            this.errorMsg = document.getElementById('errorMsg');
-            this.loadingMsg = document.getElementById('loadingMsg');
-            this.results = document.getElementById('results');
-            this.summary = document.getElementById('summary');
-            this.summaryTitle = document.getElementById('summaryTitle');
-            this.stats = document.getElementById('stats');
-            this.wordGroups = document.getElementById('wordGroups');
-            this.noResults = document.getElementById('noResults');
-        }
-
-        bindEvents() {
-            this.wordInput.addEventListener('input', (e) => {
-                this.handleInput(e.target.value);
-            });
-
-            this.wordInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.handleInput(e.target.value);
-                }
-            });
-        }
-
-        async loadWordList() {
-            try {
-                const response = await fetch('words.txt');
-                if (!response.ok) {
-                    throw new Error('Failed to load word list');
-                }
-                const text = await response.text();
-                const words = text.split('\n').map(word => word.trim().toLowerCase()).filter(word => word.length > 0);
-                this.wordList = new Set(words);
-                console.log(`Loaded ${this.wordList.size} words`);
-            } catch (error) {
-                console.error('Error loading word list:', error);
-                this.showError('Failed to load word dictionary. Please ensure words.txt is in the same folder as this HTML file.');
-            }
-        }
-
-        handleInput(value) {
-            const word = value.trim().toLowerCase();
-            
-            if (word.length === 0) {
-                this.hideResults();
-                return;
-            }
-
-            if (word.length < 2) {
-                this.showError('Please enter a word with at least 2 letters.');
-                return;
-            }
-
-            if (!/^[a-z]+$/.test(word)) {
-                this.showError('Please enter only letters (a-z).');
-                return;
-            }
-
-            this.hideError();
-            this.debounceSearch(word);
-        }
-
-        debounceSearch(word) {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.searchWords(word);
-            }, 300);
-        }
-
-        searchWords(inputWord) {
-            if (this.isLoading) return;
-            
-            this.isLoading = true;
-            this.showLoading();
-
-            // Use setTimeout to prevent UI blocking
-            setTimeout(() => {
-                const foundWords = this.findWords(inputWord);
-                this.displayResults(inputWord, foundWords);
-                this.hideLoading();
+    <script>
+        class WordScramble {
+            constructor() {
+                this.wordList = new Set();
                 this.isLoading = false;
-            }, 100);
-        }
+                this.initializeElements();
+                this.bindEvents();
+                this.loadWordList();
+            }
 
-        findWords(inputWord) {
-            const foundWords = [];
-            const letterCount = this.getLetterCount(inputWord);
+            initializeElements() {
+                this.wordInput = document.getElementById('wordInput');
+                this.errorMsg = document.getElementById('errorMsg');
+                this.loadingMsg = document.getElementById('loadingMsg');
+                this.results = document.getElementById('results');
+                this.summary = document.getElementById('summary');
+                this.summaryTitle = document.getElementById('summaryTitle');
+                this.stats = document.getElementById('stats');
+                this.wordGroups = document.getElementById('wordGroups');
+                this.noResults = document.getElementById('noResults');
+            }
 
-            for (const word of this.wordList) {
-                if (word === inputWord) continue;
-                if (word.length > inputWord.length) continue;
+            bindEvents() {
+                this.wordInput.addEventListener('input', (e) => {
+                    this.handleInput(e.target.value);
+                });
+
+                this.wordInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.handleInput(e.target.value);
+                    }
+                });
+            }
+
+            async loadWordList() {
+                try {
+                    const response = await fetch('words.txt');
+                    if (!response.ok) {
+                        throw new Error('Failed to load word list');
+                    }
+                    const text = await response.text();
+                    const words = text.split('\n').map(word => word.trim().toLowerCase()).filter(word => word.length > 0);
+                    this.wordList = new Set(words);
+                    console.log(`Loaded ${this.wordList.size} words`);
+                } catch (error) {
+                    console.error('Error loading word list:', error);
+                    this.showError('Failed to load word dictionary. Please ensure words.txt is in the same folder as this HTML file.');
+                }
+            }
+
+            handleInput(value) {
+                const word = value.trim().toLowerCase();
                 
-                if (this.canFormWord(word, letterCount)) {
-                    foundWords.push(word);
+                if (word.length === 0) {
+                    this.hideResults();
+                    return;
                 }
-            }
 
-            return foundWords;
-        }
-
-        getLetterCount(word) {
-            const count = {};
-            for (const letter of word) {
-                count[letter] = (count[letter] || 0) + 1;
-            }
-            return count;
-        }
-
-        canFormWord(word, availableLetters) {
-            const needed = this.getLetterCount(word);
-            
-            for (const [letter, count] of Object.entries(needed)) {
-                if (!availableLetters[letter] || availableLetters[letter] < count) {
-                    return false;
+                if (word.length < 2) {
+                    this.showError('Please enter a word with at least 2 letters.');
+                    return;
                 }
-            }
-            
-            return true;
-        }
 
-        displayResults(inputWord, foundWords) {
-            if (foundWords.length === 0) {
-                this.showNoResults();
-                return;
-            }
-
-            this.hideNoResults();
-            
-            const groupedWords = this.groupWordsByLength(foundWords);
-            
-            this.updateSummary(inputWord, foundWords, groupedWords);
-            this.updateWordGroups(groupedWords);
-            
-            this.showResults();
-        }
-
-        groupWordsByLength(words) {
-            const groups = {};
-            
-            words.forEach(word => {
-                const length = word.length;
-                if (!groups[length]) {
-                    groups[length] = [];
+                if (!/^[a-z]+$/.test(word)) {
+                    this.showError('Please enter only letters (a-z).');
+                    return;
                 }
-                groups[length].push(word);
-            });
 
-            // Sort words within each group alphabetically
-            Object.keys(groups).forEach(length => {
-                groups[length].sort();
-            });
+                this.hideError();
+                this.debounceSearch(word);
+            }
 
-            return groups;
-        }
+            debounceSearch(word) {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.searchWords(word);
+                }, 300);
+            }
 
-        updateSummary(inputWord, foundWords, groupedWords) {
-            const totalWords = foundWords.length;
-            const inputLength = inputWord.length;
-            
-            this.summaryTitle.textContent = `WordScramble found ${totalWords} other word${totalWords === 1 ? '' : 's'} in the word "${inputWord.toUpperCase()}"`;
-            
-            // Create stats
-            const statsHTML = `
-                <div class="stat-item">
-                    <div class="stat-number">${inputLength}</div>
-                    <div class="stat-label">Letters in "${inputWord.toUpperCase()}"</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">${totalWords}</div>
-                    <div class="stat-label">Hidden Words Found</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">${Object.keys(groupedWords).length}</div>
-                    <div class="stat-label">Different Word Lengths</div>
-                </div>
-            `;
-            
-            this.stats.innerHTML = statsHTML;
-        }
-
-        updateWordGroups(groupedWords) {
-            const lengths = Object.keys(groupedWords).map(Number).sort((a, b) => b - a);
-            
-            let groupsHTML = '';
-            
-            lengths.forEach(length => {
-                const words = groupedWords[length];
-                const wordsHTML = words.map(word => 
-                    `<span class="word-item">${word}</span>`
-                ).join('');
+            searchWords(inputWord) {
+                if (this.isLoading) return;
                 
-                groupsHTML += `
-                    <div class="word-group">
-                        <h3>
-                            ${length} Letter Word${length === 1 ? '' : 's'}
-                            <span class="word-count">${words.length}</span>
-                        </h3>
-                        <div class="words-list">
-                            ${wordsHTML}
-                        </div>
+                this.isLoading = true;
+                this.showLoading();
+
+                // Use setTimeout to prevent UI blocking
+                setTimeout(() => {
+                    const foundWords = this.findWords(inputWord);
+                    this.displayResults(inputWord, foundWords);
+                    this.hideLoading();
+                    this.isLoading = false;
+                }, 100);
+            }
+
+            findWords(inputWord) {
+                const foundWords = [];
+                const letterCount = this.getLetterCount(inputWord);
+
+                for (const word of this.wordList) {
+                    if (word === inputWord) continue;
+                    if (word.length > inputWord.length) continue;
+                    
+                    if (this.canFormWord(word, letterCount)) {
+                        foundWords.push(word);
+                    }
+                }
+
+                return foundWords;
+            }
+
+            getLetterCount(word) {
+                const count = {};
+                for (const letter of word) {
+                    count[letter] = (count[letter] || 0) + 1;
+                }
+                return count;
+            }
+
+            canFormWord(word, availableLetters) {
+                const needed = this.getLetterCount(word);
+                
+                for (const [letter, count] of Object.entries(needed)) {
+                    if (!availableLetters[letter] || availableLetters[letter] < count) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            displayResults(inputWord, foundWords) {
+                if (foundWords.length === 0) {
+                    this.showNoResults();
+                    return;
+                }
+
+                this.hideNoResults();
+                
+                const groupedWords = this.groupWordsByLength(foundWords);
+                
+                this.updateSummary(inputWord, foundWords, groupedWords);
+                this.updateWordGroups(groupedWords);
+                
+                this.showResults();
+            }
+
+            groupWordsByLength(words) {
+                const groups = {};
+                
+                words.forEach(word => {
+                    const length = word.length;
+                    if (!groups[length]) {
+                        groups[length] = [];
+                    }
+                    groups[length].push(word);
+                });
+
+                // Sort words within each group alphabetically
+                Object.keys(groups).forEach(length => {
+                    groups[length].sort();
+                });
+
+                return groups;
+            }
+
+            updateSummary(inputWord, foundWords, groupedWords) {
+                const totalWords = foundWords.length;
+                const inputLength = inputWord.length;
+                
+                this.summaryTitle.textContent = `WordScramble found ${totalWords} other word${totalWords === 1 ? '' : 's'} in the word "${inputWord.toUpperCase()}"`;
+                
+                // Create stats
+                const statsHTML = `
+                    <div class="stat-item">
+                        <div class="stat-number">${inputLength}</div>
+                        <div class="stat-label">Letters in "${inputWord.toUpperCase()}"</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${totalWords}</div>
+                        <div class="stat-label">Hidden Words Found</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${Object.keys(groupedWords).length}</div>
+                        <div class="stat-label">Different Word Lengths</div>
                     </div>
                 `;
-            });
-            
-            this.wordGroups.innerHTML = groupsHTML;
+                
+                this.stats.innerHTML = statsHTML;
+            }
+
+            updateWordGroups(groupedWords) {
+                const lengths = Object.keys(groupedWords).map(Number).sort((a, b) => b - a);
+                
+                let groupsHTML = '';
+                
+                lengths.forEach(length => {
+                    const words = groupedWords[length];
+                    const wordsHTML = words.map(word => 
+                        `<span class="word-item" data-word="${word}" title="Click to copy">${word}</span>`
+                    ).join('');
+                    
+                    groupsHTML += `
+                        <div class="word-group">
+                            <h3>
+                                ${length} Letter Word${length === 1 ? '' : 's'}
+                                <span class="word-count">${words.length}</span>
+                            </h3>
+                            <div class="words-list">
+                                ${wordsHTML}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                this.wordGroups.innerHTML = groupsHTML;
+                
+                // Add click event listeners to word items
+                this.addWordClickListeners();
+            }
+
+            showError(message) {
+                this.errorMsg.textContent = message;
+                this.errorMsg.classList.add('show');
+                this.hideResults();
+            }
+
+            hideError() {
+                this.errorMsg.classList.remove('show');
+            }
+
+            showLoading() {
+                this.loadingMsg.classList.add('show');
+                this.hideResults();
+            }
+
+            hideLoading() {
+                this.loadingMsg.classList.remove('show');
+            }
+
+            showResults() {
+                this.results.classList.add('show');
+                this.hideNoResults();
+            }
+
+            hideResults() {
+                this.results.classList.remove('show');
+            }
+
+            showNoResults() {
+                this.noResults.style.display = 'block';
+                this.hideResults();
+            }
+
+            hideNoResults() {
+                this.noResults.style.display = 'none';
+            }
+
+            addWordClickListeners() {
+                const wordItems = this.wordGroups.querySelectorAll('.word-item');
+                wordItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        this.copyWordToClipboard(e.target);
+                    });
+                });
+            }
+
+            async copyWordToClipboard(element) {
+                const word = element.dataset.word;
+                
+                try {
+                    await navigator.clipboard.writeText(word);
+                    this.showCopySuccess(element);
+                } catch (err) {
+                    // Fallback for older browsers
+                    this.fallbackCopyToClipboard(word, element);
+                }
+            }
+
+            fallbackCopyToClipboard(text, element) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    this.showCopySuccess(element);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    this.showCopyError(element);
+                } finally {
+                    document.body.removeChild(textArea);
+                }
+            }
+
+            showCopySuccess(element) {
+                element.classList.add('copied');
+                element.textContent = '✓ Copied!';
+                
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                    element.textContent = element.dataset.word;
+                }, 1000);
+            }
+
+            showCopyError(element) {
+                element.style.background = 'var(--error-color)';
+                element.textContent = '✗ Failed';
+                
+                setTimeout(() => {
+                    element.style.background = '';
+                    element.textContent = element.dataset.word;
+                }, 1000);
+            }
         }
 
-        showError(message) {
-            this.errorMsg.textContent = message;
-            this.errorMsg.classList.add('show');
-            this.hideResults();
-        }
-
-        hideError() {
-            this.errorMsg.classList.remove('show');
-        }
-
-        showLoading() {
-            this.loadingMsg.classList.add('show');
-            this.hideResults();
-        }
-
-        hideLoading() {
-            this.loadingMsg.classList.remove('show');
-        }
-
-        showResults() {
-            this.results.classList.add('show');
-            this.hideNoResults();
-        }
-
-        hideResults() {
-            this.results.classList.remove('show');
-        }
-
-        showNoResults() {
-            this.noResults.style.display = 'block';
-            this.hideResults();
-        }
-
-        hideNoResults() {
-            this.noResults.style.display = 'none';
-        }
-    }
-
-    // Initialize the application when the page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        new WordScramble();
-    });
-</script>
-
-
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new WordScramble();
+        });
+    </script>
 </body>
 </html>
